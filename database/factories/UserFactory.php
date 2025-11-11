@@ -23,9 +23,26 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        // Simple fallback if faker not available (for production)
+        $name = 'User ' . Str::random(8);
+        $email = 'user' . Str::random(8) . '@example.com';
+        
+        // Try to use faker if available
+        try {
+            if (property_exists($this, 'faker') && $this->faker) {
+                $name = $this->faker->name();
+                $email = $this->faker->unique()->safeEmail();
+            } elseif (function_exists('fake')) {
+                $name = fake()->name();
+                $email = fake()->unique()->safeEmail();
+            }
+        } catch (\Exception $e) {
+            // Use fallback values
+        }
+        
         return [
-            'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
+            'name' => $name,
+            'email' => $email,
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
