@@ -8,4 +8,11 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        https: false,
+        host: '0.0.0.0',
+    },
+    build: {
+        manifest: true,
+    },
 });
