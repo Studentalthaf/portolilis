@@ -1,92 +1,115 @@
 # Multi-stage build untuk optimasi
-FROM php:8.2-fpm as base
+# Stage 1: PHP Base dengan dependencies
+FROM php:8.2-fpm-alpine as php-base
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     git \
     curl \
     libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
+    libjpeg-turbo-dev \
+    freetype-dev \
     libzip-dev \
-    && rm -rf /var/lib/apt/lists/*
+    oniguruma-dev \
+    mysql-client \
+    autoconf \
+    g++ \
+    make
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+# Configure dan install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) pdo_mysql mbstring gd zip \
+    && docker-php-ext-enable opcache
+
+# Cleanup build dependencies
+RUN apk del autoconf g++ make
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install Node.js 20.x
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
-
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy composer files
-COPY composer.json composer.lock ./
-
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-# Copy package files
-COPY package.json package-lock.json ./
-
-# Install Node dependencies
-RUN npm ci --only=production
-
-# Copy application files
+# Copy semua file aplikasi
 COPY . .
 
-# Build assets
-RUN npm run build
+# Install PHP dependencies (production only)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Production stage
-FROM php:8.2-fpm
+# Stage 2: Node Builder untuk build assets
+FROM node:20-alpine as node-builder
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json ./
+COPY vite.config.js ./
+COPY tailwind.config.js ./
+COPY postcss.config.js ./
+
+# Copy source files yang diperlukan untuk build
+COPY resources ./resources
+
+# Install dependencies (termasuk dev untuk build)
+RUN npm ci --no-audit --prefer-offline
+
+# Build assets
+RUN npm run build
+
+# Stage 3: Production
+FROM php:8.2-fpm-alpine
+
+# Install runtime dependencies (tanpa dev packages)
+RUN apk add --no-cache \
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    libzip \
+    oniguruma \
+    mysql-client
+
+# Install PHP extensions dengan build dependencies
+RUN apk add --no-cache --virtual .build-deps \
     libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
+    libjpeg-turbo-dev \
+    freetype-dev \
     libzip-dev \
-    && rm -rf /var/lib/apt/lists/*
+    oniguruma-dev \
+    autoconf \
+    g++ \
+    make \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) pdo_mysql mbstring gd zip \
+    && docker-php-ext-enable opcache \
+    && apk del .build-deps
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+# Configure OPcache untuk performa
+RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.memory_consumption=64" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.max_accelerated_files=10000" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.revalidate_freq=2" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/opcache.ini
 
-# Install Composer
+# Install Composer (untuk artisan commands)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Install Node.js 20.x
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy installed dependencies from base stage
-COPY --from=base /var/www/html/vendor ./vendor
-COPY --from=base /var/www/html/node_modules ./node_modules
-COPY --from=base /var/www/html/public/build ./public/build
+# Copy dari php-base stage
+COPY --from=php-base /var/www/html/vendor ./vendor
+COPY --from=php-base /var/www/html ./
 
-# Copy application files
-COPY . .
+# Copy built assets dari node-builder
+COPY --from=node-builder /app/public/build ./public/build
 
 # Copy entrypoint script
-COPY docker/entrypoint.sh /usr/local/bin/
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Set permissions
@@ -100,4 +123,3 @@ EXPOSE 9000
 # Use entrypoint script
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["php-fpm"]
-
