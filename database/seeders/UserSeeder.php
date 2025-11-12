@@ -15,18 +15,18 @@ class UserSeeder extends Seeder
     {
         // Create Admin User
         User::updateOrCreate(
-            ['email' => 'admin@sim.com'],
+            ['email' => '23032010040@student.upnjatim.ac.id'],
             [
                 'name' => 'Laily Charles Febriana',
-                'email' => 'admin@sim.com',
-                'password' => Hash::make('password'),
+                'email' => '23032010040@student.upnjatim.ac.id',
+                'password' => Hash::make('laily123'),
                 'email_verified_at' => now(),
             ]
         );
 
         $this->command->info('✅ Admin user created successfully!');
-        $this->command->info('   Email: admin@sim.com');
-        $this->command->info('   Password: password');
+        $this->command->info('   Email: 23032010040@student.upnjatim.ac.id');
+        $this->command->info('   Password: laily123');
     }
 }
 

@@ -223,7 +223,7 @@
                     </h1>
                     
                     <p class="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
-                        Mahasiswa Teknik Sipil Universitas UPN Veteran Jawa Timur 
+                        Mahasiswa Teknik Industri Universitas UPN Veteran Jawa Timur yang memiliki passion dalam bidang konstruksi dan infrastruktur. Aktif dalam kegiatan akademik dan organisasi kampus untuk mengembangkan kemampuan teknis dan soft skills.
                     </p>
                     
                     <!-- Contact Info -->
@@ -270,7 +270,7 @@
                         <h3 class="font-semibold text-lg mt-4">
                             <i class="fas fa-star text-yellow-500 mr-2"></i>Cita-cita
                         </h3>
-                        <p class="text-gray-600 dark:text-gray-400">Menjadi Tenaga Ahli di bidang Teknik Sipil </p>
+                        <p class="text-gray-600 dark:text-gray-400">Bercita-cita menjadi Teknik Industri yang berkontribusi dalam pembangunan industri di Indonesia.</p>
                     </div>
                 </div>
                 

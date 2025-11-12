@@ -150,16 +150,15 @@
             </div>
 
             <!-- Stats Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                 <!-- Stat Card 1 -->
                 <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
                     <div class="flex items-center justify-between mb-4">
                         <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
                             <i class="fas fa-project-diagram text-blue-600 dark:text-blue-400 text-xl"></i>
                         </div>
-                        <span class="text-xs text-green-500 font-semibold">+12%</span>
                     </div>
-                    <h3 class="text-3xl font-bold mb-1">6</h3>
+                    <h3 class="text-3xl font-bold mb-1">{{ $stats['projects'] ?? 0 }}</h3>
                     <p class="text-gray-600 dark:text-gray-400 text-sm">Total Projects</p>
                 </div>
 
@@ -169,9 +168,8 @@
                         <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
                             <i class="fas fa-certificate text-purple-600 dark:text-purple-400 text-xl"></i>
                         </div>
-                        <span class="text-xs text-green-500 font-semibold">+8%</span>
                     </div>
-                    <h3 class="text-3xl font-bold mb-1">6</h3>
+                    <h3 class="text-3xl font-bold mb-1">{{ $stats['certificates'] ?? 0 }}</h3>
                     <p class="text-gray-600 dark:text-gray-400 text-sm">Certificates</p>
                 </div>
 
@@ -181,22 +179,9 @@
                         <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
                             <i class="fas fa-share-alt text-green-600 dark:text-green-400 text-xl"></i>
                         </div>
-                        <span class="text-xs text-green-500 font-semibold">+24%</span>
                     </div>
-                    <h3 class="text-3xl font-bold mb-1">6</h3>
+                    <h3 class="text-3xl font-bold mb-1">{{ $stats['sharings'] ?? 0 }}</h3>
                     <p class="text-gray-600 dark:text-gray-400 text-sm">Sharing Posts</p>
-                </div>
-
-                <!-- Stat Card 4 -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-eye text-orange-600 dark:text-orange-400 text-xl"></i>
-                        </div>
-                        <span class="text-xs text-green-500 font-semibold">+156%</span>
-                    </div>
-                    <h3 class="text-3xl font-bold mb-1">1,234</h3>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm">Page Views</p>
                 </div>
             </div>
 
