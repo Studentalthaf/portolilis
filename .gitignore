@@ -13,9 +13,9 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
 /public/hot
 /public/storage
+# /public/build - Commented out untuk production (assets perlu di-commit)
 /storage/*.key
 /storage/pail
 /vendor
