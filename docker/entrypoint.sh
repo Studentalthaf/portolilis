@@ -32,6 +32,12 @@ if [ ! -f .env ]; then
     fi
 fi
 
+# Install Composer dependencies if vendor doesn't exist (volume mount may have removed it)
+if [ ! -d vendor ] || [ ! -f vendor/autoload.php ]; then
+    echo "📦 Installing Composer dependencies..."
+    composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist || echo "⚠️ Warning: Composer install failed, but continuing..."
+fi
+
 # Generate application key if not set
 if ! grep -q "APP_KEY=base64" .env 2>/dev/null || ! grep -q "APP_KEY=" .env 2>/dev/null; then
     echo "🔑 Generating application key..."
