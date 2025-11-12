@@ -54,6 +54,12 @@ if [ ! -L public/storage ]; then
     php artisan storage:link || echo "⚠️ Warning: Could not create storage link"
 fi
 
+# Copy Vite manifest to root build directory (if exists in .vite/)
+if [ -f public/build/.vite/manifest.json ] && [ ! -f public/build/manifest.json ]; then
+    echo "📋 Copying Vite manifest to root build directory..."
+    cp public/build/.vite/manifest.json public/build/manifest.json
+fi
+
 # Set permissions
 echo "🔐 Setting permissions..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
